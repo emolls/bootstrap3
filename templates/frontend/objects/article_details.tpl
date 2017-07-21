@@ -139,28 +139,45 @@
 				{* Screen-reader heading for easier navigation jumps *}
 				<h2 class="sr-only">{translate key="plugins.themes.bootstrap3.article.details"}</h2>
 
-				{* Citation formats *}
-				{if $citationPlugins|@count}
-					<div class="panel panel-default citation_formats">
+				{* How to cite *}
+				{if $citation}
+					<div class="panel panel-default citation_display">
 						<div class="panel-heading">
 							{translate key="submission.howToCite"}
 						</div>
 						<div class="panel-body">
-
-							{* Output the first citation format *}
-							{foreach from=$citationPlugins name="citationPlugins" item="citationPlugin"}
-								<div id="citationOutput" class="citation_output">
-									{$citationPlugin->fetchCitation($article, $issue, $currentContext)}
+							<div class="value">
+								<div id="citationOutput" role="region" aria-live="polite">
+									{$citation}
 								</div>
-								{php}break;{/php}
-							{/foreach}
-
-							{* Output list of all citation formats *}
-							<div class="list-group citation_format_options">
-								{foreach from=$citationPlugins name="citationPlugins" item="citationPlugin"}
-									{capture assign="citationUrl"}{url page="article" op="cite" path=$article->getBestArticleId()}/{$citationPlugin->getName()|escape}{/capture}
-									<a class="list-group-item {$citationPlugin->getName()|escape}" href="{$citationUrl}"{if !$citationPlugin->isDownloadable()} data-load-citation="true"{/if} target="_blank">{$citationPlugin->getCitationFormatName()|escape}</a>
-								{/foreach}
+								<div class="citation_formats dropdown">
+									<button class="btn btn-default dropdown-toggle" id="citationFormatsButton" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+										{translate key="submission.howToCite.citationFormats"}
+										<span class="caret"></span>
+									</button>
+									<ul class="dropdown-menu" aria-labelledby="citationFormatsButton">
+										{foreach from=$citationStyles key="citationStyleId" item="citationStyle"}
+											<li>
+												<a aria-controls="citationOutput" href="{url page="citationstylelanguage" op="get" path=$citationStyleId params=$citationArgs}" data-load-citation>
+													{$citationStyle.label}
+												</a>
+											</li>
+										{/foreach}
+										{if count($citationDownloads)}
+											<li class="dropdown-header">
+												{translate key="submission.howToCite.downloadCitation"}
+											</li>
+											{foreach from=$citationDownloads key="citationDownloadId" item="citationDownload"}
+												<li>
+													<a href="{url page="citationstylelanguage" op="download" path=$citationDownloadId params=$citationArgs}">
+														<span class="glyphicon glyphicon-save"></span>
+														{$citationDownload.label}
+													</a>
+												</li>
+											{/foreach}
+										{/if}
+									</ul>
+								</div>
 							</div>
 						</div>
 					</div>
